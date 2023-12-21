@@ -1,4 +1,9 @@
 ﻿using Comic.Api.Code.Enums;
+using Comic.API.Code.Extensions;
+using Comic.API.Domain;
+using System.Globalization;
+using System.Net.NetworkInformation;
+using System.Text;
 
 namespace Comic.API.Code.Dtos;
 
@@ -9,14 +14,24 @@ public class ComicDto
     public string AliasName { get; set; }
     public string CoverUrl { get; set; }
     public string Description { get; set; }
-    public ComicStatus Status { get; set; }
+    public ComicStatus StatusId { get; set; }
+    public string Status => StatusId.GetDescription();
     public long TotalViews { get; set; }
+    public string FormattedTotalViews => TotalViews.FormatAsVietnameseNumber();
     public int TotalHearts { get; set; }
     public double Rating { get; set; }
     public int TotalRating { get; set; }
     public int NumberOfChapters { get; set; }
-    public string[] Categories { get; set; }
+    public CategoryDto[] Categories { get; set; }
     public List<ChapterDto> Chapters { get; set; } = new List<ChapterDto>();
-    public string[] Authors { get; set; }
+    public AuthorDto[] Authors { get; set; }
     public DateTime ChangedOn { get; set; }
+    public long NumberOfFollowers { get; set; }
+    public string UnsignedName
+    {
+        get
+        {
+            return Name.RemoveAccents();
+        }
+    }
 }

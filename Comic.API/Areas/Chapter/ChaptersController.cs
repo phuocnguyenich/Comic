@@ -15,9 +15,9 @@ public class ChaptersController : ControllerBase
     }
 
     [HttpGet("{comicId}")]
-    public async Task<IActionResult> GetComicsAsync(int comicId)
+    public async Task<IActionResult> GetChaptersById(int comicId)
     {
-        var result = await _chapterService.GetChaptersByComicId(comicId);
+        var result = await _chapterService.GetChaptersById(comicId);
         return Ok(result);
     }
 }

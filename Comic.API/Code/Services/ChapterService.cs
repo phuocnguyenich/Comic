@@ -14,8 +14,13 @@ public class ChapterService : IChapterService
         _context = context;
     }
 
-    public async Task<List<ChapterDto>> GetChaptersByComicId(int comicId)
+    public async Task<List<ChapterDto>> GetChaptersById(int id)
     {
+        var comicId = await _context.Chapters
+            .Where(x => x.Id == id)
+            .Select(x => x.ComicId)
+            .FirstOrDefaultAsync();
+
         return await _context.Chapters
                 .Where(x => x.ComicId == comicId)
                 .Select(x => new ChapterDto

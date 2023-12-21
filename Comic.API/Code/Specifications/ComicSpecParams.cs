@@ -7,7 +7,7 @@ public class ComicSpecParams
     private const int MaxPageSize = 50;
     public int PageIndex { get; set; } = 1;
 
-    private int _pageSize = 10;
+    private int _pageSize = 12;
     public int PageSize
     {
         get => _pageSize;

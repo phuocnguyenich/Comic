@@ -1,25 +1,44 @@
-﻿namespace Comic.API.Code.Dtos;
+﻿using Comic.API.Code.Extensions;
+
+namespace Comic.API.Code.Dtos;
 
 public class ChapterDto
 {
-    public int Id { get; set; }
+    public int? Id { get; set; }
     public string Name { get; set; }
     public long TotalViews { get; set; }
-    public DateTime ChangedOn { get; set; }
+    public string FormattedTotalViews => TotalViews.FormatAsVietnameseNumber();
+    public DateTime? ChangedOn { get; set; }
     public string TimeElapsedSinceChanged
     {
         get
         {
-            TimeSpan timeElapsed = DateTime.Now.AddDays(10) - ChangedOn;
+            if (ChangedOn == null) return null;
 
-            if (timeElapsed.TotalDays > 30)
+            TimeSpan timeElapsed = DateTime.UtcNow - ChangedOn.Value;
+
+            if (timeElapsed.TotalHours < 1)
             {
-                return ChangedOn.ToShortDateString();
+                return timeElapsed.TotalHours.ToString("N0") + " phút trước";
             }
-            else
+            if (timeElapsed.TotalHours < 24)
             {
-                return timeElapsed.TotalDays.ToString("N0");
+                return timeElapsed.TotalHours.ToString("N0") + " giờ trước";
             }
+            if (timeElapsed.TotalDays < 30)
+            {
+                return timeElapsed.TotalDays.ToString("N0") + " ngày trước";
+            }
+
+            return ChangedOn.Value.ToShortDateString();
+        }
+    }
+
+    public string UnsignedName
+    {
+        get
+        {
+            return Name.RemoveAccents();
         }
     }
 }

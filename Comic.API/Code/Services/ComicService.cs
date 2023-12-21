@@ -1,12 +1,14 @@
 ﻿using AutoMapper;
 using Comic.Api.Code.Enums;
 using Comic.API.Code.Dtos;
+using Comic.API.Code.Extensions;
 using Comic.API.Code.Helpers;
 using Comic.API.Code.Interfaces;
 using Comic.API.Code.Specifications;
 using Comic.API.Data;
 using Comic.API.Domain;
 using Microsoft.EntityFrameworkCore;
+using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
@@ -61,20 +63,20 @@ public class ComicService : IComicService
                      select new ComicDto
                      {
                          Id = g.Key.Id,
-                         Name = g.Key.Name,
+                         Name = "Con đường bá chủ",
                          AliasName = g.Key.AliasName,
-                         CoverUrl = g.Key.CoverUrl,
+                         CoverUrl = "https://st.nettruyenus.com/data/comics/32/vo-luyen-dinh-phong-9068.jpg",
                          Description = g.Key.Description,
-                         Status = g.Key.Status,
+                         StatusId = g.Key.Status,
                          TotalViews = g.Sum(x => x.d1.ViewCount),
                          //Rating = g.Key.Rating,
                          //TotalRating = g.Key.TotalRating,
                          Chapters = g.Select(x => new ChapterDto
-                                     {
-                                         Id = x.ch.Id,
-                                         Name = x.ch.Name,
-                                         ChangedOn = x.ch.ChangedOn,
-                                     }).OrderByDescending(x => x.Id).Take(3).ToList(),
+                         {
+                             Id = x.ch.Id,
+                             Name = x.ch.Name,
+                             ChangedOn = x.ch.ChangedOn,
+                         }).OrderByDescending(x => x.Id).Take(3).ToList(),
                          ChangedOn = g.Key.ChangedOn,
                          NumberOfChapters = g.Select(x => x.ch.Id).Count(),
                      });
@@ -82,7 +84,7 @@ public class ComicService : IComicService
         // Use case-insensitive comparison for category
         if (!string.IsNullOrEmpty(comicSpecParams.Category))
         {
-            query = query.Where(c => c.Categories.Contains(comicSpecParams.Category));
+            query = query.Where(c => c.Categories.Select(x => x.Name).Contains(comicSpecParams.Category));
         }
 
         switch (comicSpecParams.Sort)
@@ -108,7 +110,13 @@ public class ComicService : IComicService
         }
 
         // Additional conditions for search or other parameters can be added here
-        var count = await _context.Comics.CountAsync();
+        var count = await (from c in comicQuery
+                           join ch in _context.Chapters on c.Id equals ch.ComicId
+                           join d in dailyComicViewsQuery on ch.Id equals d.ChapterId into dailyComicViewsGroup
+                           from d1 in dailyComicViewsGroup.DefaultIfEmpty()
+                           group c by c.Id into g
+                           select g.Key)
+                           .CountAsync();
 
         // Combine Count and Data Retrieval
         var comics = await query
@@ -170,40 +178,51 @@ public class ComicService : IComicService
 
         var comic = await (from c in _context.Comics
                            .Include(x => x.UserRatings)
+                           .Include(x => x.Followers)
                            .Where(x => x.Id == id)
                      let chapters = (
                          from ch in _context.Chapters
-                         join d in dailyComicViewsQuery on ch.Id equals d.ChapterId
+                         join d in dailyComicViewsQuery on ch.Id equals d.ChapterId into dailyComicViewsGroup
+                         from d1 in dailyComicViewsGroup.DefaultIfEmpty()
                          where ch.ComicId == c.Id
                          orderby ch.Id descending
                          select new ChapterDto
                          {
                              Id = ch.Id,
                              Name = ch.Name,
-                             TotalViews = d.ViewCount,
+                             TotalViews = (long?)d1.ViewCount ?? 0,
                              ChangedOn = ch.ChangedOn
                          }
-                     ).ToList()
+                     )
+                     .OrderByDescending(x => x.Id)
+                     .ToList()
 
                      select new ComicDto
                      {
                          Id = c.Id,
-                         Name = c.Name,
+                         Name = "Con đường bá chủ",
                          AliasName = c.AliasName,
-                         CoverUrl = c.CoverUrl,
+                         CoverUrl = "https://st.nettruyenus.com/data/comics/32/vo-luyen-dinh-phong-9068.jpg",
                          Description = c.Description,
-                         Status = c.Status,
+                         StatusId = c.Status,
                          TotalViews = chapters.Sum(x => x.TotalViews),
                          Rating = c.Rating,
                          TotalRating = c.TotalRating,
                          Authors = c.AuthorComics
-                                 .Select(x => x.Author.Name)
-                                 .ToArray(),
+                                 .Select(x => new AuthorDto
+                                 {
+                                     Id = x.Author.Id,
+                                     Name = x.Author.Name
+                                 }).ToArray(),
                          Categories = c.CategoryComics
-                                 .Select(x => x.Category.Name)
-                                 .ToArray(),
+                                 .Select(x => new CategoryDto
+                                 {
+                                     Id = x.Category.Id,
+                                     Name = x.Category.Name
+                                 }).ToArray(),
                          Chapters = chapters,
-                         ChangedOn = c.ChangedOn
+                         ChangedOn = c.ChangedOn,
+                         NumberOfFollowers = c.Followers.Count,
                      }).FirstOrDefaultAsync();
 
         //return _mapper.Map<ComicDto>(comic);
@@ -231,7 +250,7 @@ public class ComicService : IComicService
                         AliasName = c.AliasName,
                         CoverUrl = c.CoverUrl,
                         Description = c.Description,
-                        Status = c.Status,
+                        StatusId = c.Status,
                         //TotalViews = c.TotalViews,
                         //TotalHearts = c.TotalHearts,
                         //Rating = c.Rating,

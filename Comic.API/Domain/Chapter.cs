@@ -10,4 +10,5 @@ public class Chapter : BaseEntity
     public Comic Comic { get; set; }
 
     public List<Comment> Comments { get; set; }
+    public List<DailyComicView> DailyComicViews { get; set; }
 }

@@ -15,7 +15,7 @@ public class ImagesController : ControllerBase
     }
 
     [HttpGet("{chapterId}")]
-    public async Task<IActionResult> GetComicsAsync(int chapterId)
+    public async Task<IActionResult> GetImagesByChapterId(int chapterId)
     {
         var result = await _imageService.GetImagesByChapterId(chapterId);
         return Ok(result);
