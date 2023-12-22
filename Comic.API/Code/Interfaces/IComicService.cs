@@ -9,4 +9,5 @@ public interface IComicService
     Task<Pagination<ComicDto>> GetComicsAsync(ComicSpecParams comicSpecParams);
     Task<List<ComicDto>> GetRecommendComicsAsync();
     Task<ComicDto> GetComicByIdAsync(int id);
+    Task<List<ChapterDto>> GetChaptersByComicId(int comicId);
 }

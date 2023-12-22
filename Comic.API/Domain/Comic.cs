@@ -25,7 +25,7 @@ public class Comic : BaseEntity
     public List<UserComicFollower> Followers { get; set; }
 
     [NotMapped]
-    public double Rating => UserRatings.Average(x => x.Rating);
+    public double Rating => UserRatings?.Average(x => x.Rating) ?? 0;
     [NotMapped]
-    public int TotalRating => UserRatings.Count;
+    public int TotalRating => UserRatings?.Count ?? 0;
 }

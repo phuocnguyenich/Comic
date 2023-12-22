@@ -264,4 +264,17 @@ public class ComicService : IComicService
 
         //return _mapper.Map<List<ComicDto>>(comics);
     }
+
+    public async Task<List<ChapterDto>> GetChaptersByComicId(int comicId)
+    {
+        return await _context.Chapters
+            .Where(x => x.ComicId == comicId)
+            .Select(x => new ChapterDto
+            {
+                Id = x.Id,
+                Name = x.Name,
+                ChangedOn = x.ChangedOn
+            })
+            .ToListAsync();
+    }
 }

@@ -14,10 +14,10 @@ public class ImagesController : ControllerBase
         _imageService = imageService;
     }
 
-    [HttpGet("{chapterId}")]
-    public async Task<IActionResult> GetImagesByChapterId(int chapterId)
-    {
-        var result = await _imageService.GetImagesByChapterId(chapterId);
-        return Ok(result);
-    }
+    // [HttpGet("{chapterId}")]
+    // public async Task<IActionResult> GetImagesByChapterId(int chapterId)
+    // {
+    //     var result = await _imageService.GetImagesByChapterId(chapterId);
+    //     return Ok(result);
+    // }
 }

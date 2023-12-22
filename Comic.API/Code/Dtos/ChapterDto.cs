@@ -9,6 +9,7 @@ public class ChapterDto
     public long TotalViews { get; set; }
     public string FormattedTotalViews => TotalViews.FormatAsVietnameseNumber();
     public DateTime? ChangedOn { get; set; }
+    public string FormattedChangedOn => ChangedOn.GetValueOrDefault().ToString("HH:mm dd/MM/yyyy");
     public string TimeElapsedSinceChanged
     {
         get

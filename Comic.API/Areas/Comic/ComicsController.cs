@@ -23,7 +23,7 @@ public class ComicsController : ControllerBase
         return Ok(paginationResult);
     }
 
-    [HttpGet("getRecommendComics")]
+    [HttpGet("recommendedComics")]
     public async Task<IActionResult> GetRecommendComics()
     {
         var paginationResult = await _comicService.GetRecommendComicsAsync();
@@ -39,5 +39,12 @@ public class ComicsController : ControllerBase
             return NotFound();
         }
         return Ok(comic);
+    }
+
+    [HttpGet("{comicId}/chapters")]
+    public async Task<IActionResult> GetChaptersByComicId(int comicId)
+    {
+        var result = await _comicService.GetChaptersByComicId(comicId);
+        return Ok(result);
     }
 }

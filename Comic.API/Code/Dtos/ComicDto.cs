@@ -26,6 +26,7 @@ public class ComicDto
     public List<ChapterDto> Chapters { get; set; } = new List<ChapterDto>();
     public AuthorDto[] Authors { get; set; }
     public DateTime ChangedOn { get; set; }
+    public string FormattedChangedOn => ChangedOn.ToString("HH:mm dd/MM/yyyy");
     public long NumberOfFollowers { get; set; }
     public string UnsignedName
     {

@@ -45,7 +45,7 @@ using (var scope = app.Services.CreateScope())
         //dbContext.ClearAllData();
 
         // Generate fake data
-        dbContext.GenerateFakeData();
+        // dbContext.GenerateFakeData();
     }
 	catch (Exception ex)
 	{
