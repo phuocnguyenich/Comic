@@ -154,13 +154,13 @@ public class ComicService : IComicService
 
         if (sort.HasValue && sortOptions.Contains(sort.Value))
         {
-            var today = DateTime.Now;
+            var today = DateTime.UtcNow.Date;
 
             query = query.Where(d =>
                 (sort == SortOption.TopAll) ||
-                (sort == SortOption.TopMonth && d.ViewDate.Month == today.Month) ||
-                (sort == SortOption.TopWeek && EF.Functions.DateDiffWeek(d.ViewDate, today) == 0) ||
-                (sort == SortOption.TopDay && d.ViewDate.Day == today.Day));
+                (sort == SortOption.TopMonth && d.ViewDate >= today.AddDays(-30) && d.ViewDate < today.AddDays(1)) ||
+                (sort == SortOption.TopWeek && d.ViewDate > today.AddDays(-7) && d.ViewDate < today.AddDays(1)) ||
+                (sort == SortOption.TopDay && d.ViewDate.Date == today));
         }
 
         return query.GroupBy(d => d.ChapterId)

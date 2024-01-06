@@ -2,6 +2,7 @@ using Comic.API.Code.Interfaces;
 using Comic.API.Code.Services;
 using Comic.API.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,8 +11,10 @@ builder.Services.AddControllers();
 
 // Database configuration
 builder.Services.AddDbContext<ComicDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-
+    options
+    .UseLoggerFactory(LoggerFactory.Create(builder => { builder.AddConsole(); }))
+    .UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
+    .EnableSensitiveDataLogging());
 builder.Services.AddScoped<IComicService, ComicService>();
 builder.Services.AddScoped<IChapterService, ChapterService>();
 builder.Services.AddScoped<IImageService, ImageService>();
