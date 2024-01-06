@@ -8,10 +8,12 @@ namespace Comic.API.Areas.Chapter;
 public class ChaptersController : ControllerBase
 {
     private readonly IChapterService _chapterService;
+    private readonly IViewCountQueue _viewCounterQueue;
 
-    public ChaptersController(IChapterService chapterService)
+    public ChaptersController(IChapterService chapterService, IViewCountQueue viewCounterQueue)
     {
         _chapterService = chapterService;
+        _viewCounterQueue = viewCounterQueue;
     }
 
     [HttpGet("{chapterId}/comic")]
@@ -30,5 +32,13 @@ public class ChaptersController : ControllerBase
     {
         var result = await _chapterService.GetImagesByChapterId(chapterId);
         return Ok(result);
+    }
+
+    [HttpPost("{chapterId}/increment-view-count")]
+    public async Task<IActionResult> IncrementViewCount(int chapterId)
+    {
+        await _viewCounterQueue.EnqueueAsync(chapterId);
+
+        return Ok($"Increment view count message enqueued for ChapterId: {chapterId}");
     }
 }

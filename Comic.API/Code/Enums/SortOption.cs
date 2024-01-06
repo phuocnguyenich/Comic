@@ -2,6 +2,7 @@
 {
     public enum SortOption
     {
+        UpdateDate,
         NewComic,
         TopAll,
         TopMonth,

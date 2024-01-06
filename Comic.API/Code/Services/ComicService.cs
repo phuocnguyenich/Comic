@@ -79,6 +79,8 @@ public class ComicService : IComicService
                          }).OrderByDescending(x => x.Id).Take(3).ToList(),
                          ChangedOn = g.Key.ChangedOn,
                          NumberOfChapters = g.Select(x => x.ch.Id).Count(),
+                         TotalFollowers = _context.Followers.Count(x => x.ComicId == g.Key.Id),
+                         TotalComments = _context.Comments.Count(x => g.Select(a => a.ch.Id).Contains(x.ChapterId)),
                      });
 
         // Use case-insensitive comparison for category
@@ -98,8 +100,10 @@ public class ComicService : IComicService
                 query = query.OrderByDescending(s => s.TotalViews);
                 break;
             case SortOption.Follow:
+                query = query.OrderByDescending(s => s.TotalFollowers);
                 break;
             case SortOption.Comments:
+                query = query.OrderByDescending(s => s.TotalComments);
                 break;
             case SortOption.NumberOfChapters:
                 query = query.OrderByDescending(x => x.NumberOfChapters);
@@ -222,7 +226,7 @@ public class ComicService : IComicService
                                  }).ToArray(),
                          Chapters = chapters,
                          ChangedOn = c.ChangedOn,
-                         NumberOfFollowers = c.Followers.Count,
+                         TotalFollowers = c.Followers.Count,
                      }).FirstOrDefaultAsync();
 
         //return _mapper.Map<ComicDto>(comic);

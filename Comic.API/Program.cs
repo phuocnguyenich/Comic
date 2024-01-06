@@ -1,9 +1,7 @@
-using Comic.API.Code.AutoMapper;
 using Comic.API.Code.Interfaces;
+using Comic.API.Code.Services;
 using Comic.API.Data;
 using Microsoft.EntityFrameworkCore;
-using AutoMapper;
-using Comic.API.Code.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,6 +15,10 @@ builder.Services.AddDbContext<ComicDbContext>(options =>
 builder.Services.AddScoped<IComicService, ComicService>();
 builder.Services.AddScoped<IChapterService, ChapterService>();
 builder.Services.AddScoped<IImageService, ImageService>();
+builder.Services.AddMemoryCache();
+builder.Services.AddSingleton<IViewCountQueue, ViewCounterQueueService>();
+builder.Services.AddHostedService<ViewCountService>();
+builder.Services.AddHostedService<ScheduledViewCountService>();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddCors(opt =>
 {
@@ -36,8 +38,8 @@ if (app.Environment.IsDevelopment())
 
 using (var scope = app.Services.CreateScope())
 {
-	try
-	{
+    try
+    {
         var dbContext = scope.ServiceProvider.GetRequiredService<ComicDbContext>();
         //dbContext.Database.Migrate();
 
@@ -47,11 +49,11 @@ using (var scope = app.Services.CreateScope())
         // Generate fake data
         // dbContext.GenerateFakeData();
     }
-	catch (Exception ex)
-	{
+    catch (Exception ex)
+    {
 
-		throw;
-	}
+        throw;
+    }
 }
 
 app.UseHttpsRedirection();
