@@ -36,46 +36,45 @@ public class ScheduledViewCountService : BackgroundService
         using (var scope = _serviceScopeFactory.CreateScope())
         {
             var dbContext = scope.ServiceProvider.GetRequiredService<ComicDbContext>();
-            var allCacheKeys = _memoryCache.GetCacheKeys();
+            var allCacheKeys = _memoryCache.GetCacheKeys().Where(x => x.StartsWith("chapterId"));
 
-            foreach (var cacheChapterId in allCacheKeys)
+            foreach (var cacheKey in allCacheKeys)
             {
-
-                if (_memoryCache.TryGetValue(cacheChapterId, out int viewCount))
+                if (_memoryCache.TryGetValue(cacheKey, out int viewCount) &&
+                    TryExtractChapterId(cacheKey, out int chapterId))
                 {
-                    // Check if there is an existing record for the current day and chapter
                     var today = DateTime.UtcNow.Date;
                     var existingRecord = dbContext.DailyComicViews
-                        .FirstOrDefault(d => d.ChapterId == cacheChapterId && d.ViewDate.Date == today);
+                        .FirstOrDefault(d => d.ChapterId == chapterId && d.ViewDate.Date == today);
 
                     if (existingRecord != null)
                     {
-                        // Update the existing record
                         existingRecord.ViewCount += viewCount;
-
-                        Console.WriteLine($"Updating {viewCount} views for Chapter {cacheChapterId} in the database.");
+                        Console.WriteLine($"Updating {viewCount} views for Chapter {chapterId} in the database.");
                     }
                     else
                     {
-                        // Add a new record for the current day
                         var dailyComicView = new DailyComicView
                         {
                             ViewDate = today,
                             ViewCount = viewCount,
-                            ChapterId = cacheChapterId
+                            ChapterId = chapterId
                         };
 
                         dbContext.DailyComicViews.Add(dailyComicView);
-
-                        Console.WriteLine($"Writing {viewCount} views for Chapter {cacheChapterId} to the database.");
+                        Console.WriteLine($"Writing {viewCount} views for Chapter {chapterId} to the database.");
                     }
 
                     await dbContext.SaveChangesAsync();
-
-                    // Clear the cache after writing to the database
-                    _memoryCache.Remove(cacheChapterId);
+                    _memoryCache.Remove(cacheKey);
                 }
             }
         }
     }
+
+    private bool TryExtractChapterId(string cacheKey, out int chapterId)
+    {
+        return int.TryParse(cacheKey.Replace("chapterId-", ""), out chapterId);
+    }
+
 }

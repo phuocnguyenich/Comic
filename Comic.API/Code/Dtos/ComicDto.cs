@@ -17,8 +17,6 @@ public class ComicDto
     public ComicStatus StatusId { get; set; }
     public string Status => StatusId.GetDescription();
     public long TotalViews { get; set; }
-    public string FormattedTotalViews => TotalViews.FormatAsVietnameseNumber();
-    public int TotalHearts { get; set; }
     public double Rating { get; set; }
     public int TotalRating { get; set; }
     public int NumberOfChapters { get; set; }

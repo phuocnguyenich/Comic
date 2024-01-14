@@ -10,4 +10,5 @@ public interface IComicService
     Task<List<ComicDto>> GetRecommendComicsAsync();
     Task<ComicDto> GetComicByIdAsync(int id);
     Task<List<ChapterDto>> GetChaptersByComicId(int comicId);
+    Task<List<ComicDto>> SearchComicsAsync(string searchTerm);
 }

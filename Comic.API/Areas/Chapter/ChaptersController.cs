@@ -34,7 +34,7 @@ public class ChaptersController : ControllerBase
         return Ok(result);
     }
 
-    [HttpPost("{chapterId}/increment-view-count")]
+    [HttpPost("{chapterId}/view-count")]
     public async Task<IActionResult> IncrementViewCount(int chapterId)
     {
         await _viewCounterQueue.EnqueueAsync(chapterId);

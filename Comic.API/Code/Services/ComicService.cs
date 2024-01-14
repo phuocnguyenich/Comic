@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading.Tasks;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Comic.API.Code.Services;
@@ -135,9 +136,9 @@ public class ComicService : IComicService
 
     private IQueryable<Domain.Comic> FilterComics(IQueryable<Domain.Comic> query, ComicStatus? status)
     {
-        if (status.HasValue)
+        if (status.HasValue && status != ComicStatus.All)
         {
-            query = query.Where(d => d.Status == status);
+            return query.Where(d => d.Status == status);
         }
 
         return query;
@@ -244,7 +245,8 @@ public class ComicService : IComicService
                         select new ChapterDto
                         {
                             Id = ch.Id,
-                            Name = ch.Name
+                            Name = ch.Name,
+                            ChangedOn = ch.ChangedOn,
                         }
                     ).Take(1).ToList()
                     select new ComicDto
@@ -252,19 +254,19 @@ public class ComicService : IComicService
                         Id = c.Id,
                         Name = c.Name,
                         AliasName = c.AliasName,
-                        CoverUrl = c.CoverUrl,
-                        Description = c.Description,
-                        StatusId = c.Status,
+                        CoverUrl = "https://st.nettruyenus.com/data/comics/32/vo-luyen-dinh-phong-9068.jpg",
+                        //Description = c.Description,
+                        //StatusId = c.Status,
                         //TotalViews = c.TotalViews,
                         //TotalHearts = c.TotalHearts,
                         //Rating = c.Rating,
                         //TotalRating = c.TotalRating,
-                        ChangedOn = c.ChangedOn,
+                        //ChangedOn = c.ChangedOn,
                         Chapters = latestChapters
                     };
 
         // You can add similar conditions for other parameters like TypeId, Search, etc.
-        return await query.Take(12).ToListAsync();
+        return await query.Take(15).ToListAsync();
 
         //return _mapper.Map<List<ComicDto>>(comics);
     }
@@ -280,5 +282,53 @@ public class ComicService : IComicService
                 ChangedOn = x.ChangedOn
             })
             .ToListAsync();
+    }
+    public async Task<List<ComicDto>> SearchComicsAsync(string searchTerm)
+    {
+        var query = from c in _context.Comics
+                    .Where(x => x.Name.Contains(searchTerm))
+                    let latestChapters = (
+                        from ch in _context.Chapters
+                        where ch.ComicId == c.Id
+                        orderby ch.Id descending
+                        select new ChapterDto
+                        {
+                            Id = ch.Id,
+                            Name = ch.Name,
+                            ChangedOn = ch.ChangedOn,
+                        }
+                    ).Take(1).ToList()
+                    select new ComicDto
+                    {
+                        Id = c.Id,
+                        Name = c.Name,
+                        AliasName = c.AliasName,
+                        CoverUrl = "https://st.nettruyenus.com/data/comics/32/vo-luyen-dinh-phong-9068.jpg",
+                        //Description = c.Description,
+                        //StatusId = c.Status,
+                        //TotalViews = c.TotalViews,
+                        //TotalHearts = c.TotalHearts,
+                        //Rating = c.Rating,
+                        //TotalRating = c.TotalRating,
+                        //ChangedOn = c.ChangedOn,
+                        Chapters = latestChapters,
+                        Categories = c.CategoryComics
+                                 .Select(x => new CategoryDto
+                                 {
+                                     Id = x.Category.Id,
+                                     Name = x.Category.Name
+                                 }).ToArray(),
+                        Authors = c.AuthorComics
+                                 .Select(x => new AuthorDto
+                                 {
+                                     Id = x.Author.Id,
+                                     Name = x.Author.Name
+                                 }).ToArray(),
+                    };
+
+        // You can add similar conditions for other parameters like TypeId, Search, etc.
+        return await query.ToListAsync();
+
+        //return _mapper.Map<List<ComicDto>>(comics);
     }
 }

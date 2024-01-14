@@ -5,13 +5,13 @@ namespace Comic.Api.Code.Enums
     public enum ComicStatus
     {
         [Description("Tất cả")]
-        All,
-        
-        [Description("Đang tiến hành")]
-        Ongoing,
+        All = -1,
 
         [Description("Hoàn thành")]
         Completed,
+
+        [Description("Đang tiến hành")]
+        Ongoing,
 
         [Description("Gián đoạn")]
         Hiatus

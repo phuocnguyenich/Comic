@@ -24,6 +24,8 @@ public class ChapterService : IChapterService
             .Select(x => x.Comic)
             .FirstOrDefaultAsync();
 
+        comic.CoverUrl = "https://st.nettruyenus.com/data/comics/32/vo-luyen-dinh-phong-9068.jpg";
+
         return _mapper.Map<ComicDto>(comic);
     }
     

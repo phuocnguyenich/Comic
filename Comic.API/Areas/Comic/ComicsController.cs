@@ -1,5 +1,6 @@
 ﻿using Comic.API.Code.Dtos;
 using Comic.API.Code.Interfaces;
+using Comic.API.Code.Middleware;
 using Comic.API.Code.Specifications;
 using Microsoft.AspNetCore.Mvc;
 
@@ -7,6 +8,7 @@ namespace Comic.API.Areas.Comic;
 
 [Route("api/[controller]")]
 [ApiController]
+[Cached(600)]
 public class ComicsController : ControllerBase
 {
     private readonly IComicService _comicService;
@@ -23,11 +25,11 @@ public class ComicsController : ControllerBase
         return Ok(paginationResult);
     }
 
-    [HttpGet("recommendedComics")]
+    [HttpGet("recommended-comics")]
     public async Task<IActionResult> GetRecommendComics()
     {
-        var paginationResult = await _comicService.GetRecommendComicsAsync();
-        return Ok(paginationResult);
+        var result = await _comicService.GetRecommendComicsAsync();
+        return Ok(result);
     }
 
     [HttpGet("{id}")]
@@ -45,6 +47,13 @@ public class ComicsController : ControllerBase
     public async Task<IActionResult> GetChaptersByComicId(int comicId)
     {
         var result = await _comicService.GetChaptersByComicId(comicId);
+        return Ok(result);
+    }
+
+    [HttpGet("search")]
+    public async Task<IActionResult> SearchComics([FromQuery] string searchTerm)
+    {
+        var result = await _comicService.SearchComicsAsync(searchTerm);
         return Ok(result);
     }
 }
