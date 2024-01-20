@@ -2,6 +2,7 @@
 using Comic.API.Code.Interfaces;
 using Comic.API.Code.Middleware;
 using Comic.API.Code.Specifications;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Comic.API.Areas.Comic;

@@ -19,7 +19,7 @@ public class ComicDbContext : IdentityDbContext<AppUser, IdentityRole<int>, int>
     public DbSet<DailyComicView> DailyComicViews { get; set; }
     public DbSet<Comment> Comments { get; set; }
     public DbSet<Image> Images { get; set; }
-    public DbSet<AppUser> AppUsers { get; set; } // Add this DbSet
+    public DbSet<AppUser> AppUsers { get; set; }
     public DbSet<UserRating> Ratings { get; set; }
     public DbSet<UserComicFollower> Followers { get; set; }
     public DbSet<AuthorComic> AuthorComics { get; set; }
@@ -81,7 +81,7 @@ public class ComicDbContext : IdentityDbContext<AppUser, IdentityRole<int>, int>
         var authors = FakeDataGenerator.GenerateAuthors(5);
         var categories = FakeDataGenerator.GenerateCategories(3);
         var appUsers = FakeDataGenerator.GenerateAppUsers(10);
-        var comics = FakeDataGenerator.GenerateComics(10, authors, categories);
+        var comics = FakeDataGenerator.GenerateComics(200, authors, categories);
 
 
         // Add generated data to the DbContext

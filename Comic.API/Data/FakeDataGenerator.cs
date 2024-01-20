@@ -28,14 +28,38 @@ public class FakeDataGenerator
 
     public static List<Chapter> GenerateChapters(int count, List<Domain.Comic> comics)
     {
-        var faker = new Faker<Chapter>()
-            .RuleFor(ch => ch.Name, f => $"Chapter {f.Random.Number(1, 1000)}")
-            .RuleFor(ch => ch.ComicId, f => f.PickRandom(comics).Id)
-            .RuleFor(ch => ch.CreatedOn, f => f.Date.Past())
-            .RuleFor(ch => ch.ChangedOn, f => f.Date.Recent(30));
+        var chapters = new List<Chapter>();
 
-        return faker.Generate(count);
+        foreach (var comic in comics)
+        {
+            var n = new Random().Next(3, count); // Assuming count is the upper limit for n
+            DateTime previousCreatedOn = DateTime.UtcNow.AddMonths(-6);
+            DateTime previousChangedOn = DateTime.UtcNow.AddMonths(-6);
+
+            for (int i = 1; i <= n; i++)
+            {
+                var createdOn = previousCreatedOn.AddDays(new Random().Next(1, 5));
+                var changedOn = previousChangedOn.AddDays(new Random().Next(1, 5));
+
+                var chapter = new Chapter
+                {
+                    Name = $"Chapter {i}",
+                    ComicId = comic.Id,
+                    CreatedOn = createdOn,
+                    ChangedOn = changedOn
+                };
+
+                chapters.Add(chapter);
+
+                // Update previousCreatedOn and previousChangedOn for the next iteration
+                previousCreatedOn = createdOn.AddDays(new Random().Next(1, 5));
+                previousChangedOn = changedOn.AddDays(new Random().Next(1, 5));
+            }
+        }
+
+        return chapters;
     }
+
 
     public static List<Domain.Comic> GenerateComics(int count, List<Author> authors, List<Category> categories)
     {
@@ -60,6 +84,9 @@ public class FakeDataGenerator
     {
         var faker = new Faker<Comment>()
             .RuleFor(com => com.Content, f => f.Lorem.Paragraph())
+            .RuleFor(com => com.ReplyingTo, f => f.PickRandom(chapters).Id) // Assuming you want to reply to a random chapter
+            .RuleFor(com => com.LikedBy, f => f.Random.Bool() ? f.PickRandom(users).Id.ToString() : null)
+            .RuleFor(com => com.DislikedBy, f => f.Random.Bool() ? f.PickRandom(users).Id.ToString() : null)
             .RuleFor(com => com.UserId, f => f.PickRandom(users).Id)
             .RuleFor(com => com.ChapterId, f => f.PickRandom(chapters).Id)
             .RuleFor(com => com.CreatedOn, f => f.Date.Past())
@@ -94,7 +121,8 @@ public class FakeDataGenerator
     {
         var faker = new Faker<AppUser>()
             .RuleFor(u => u.UserName, f => f.Internet.UserName())
-            .RuleFor(u => u.DisplayName, f => f.Name.FullName())
+            .RuleFor(u => u.FirstName, f => f.Name.FirstName())
+            .RuleFor(u => u.LastName, f => f.Name.LastName())
             .RuleFor(u => u.Email, f => f.Internet.Email());
 
         return faker.Generate(count);

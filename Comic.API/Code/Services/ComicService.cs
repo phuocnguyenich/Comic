@@ -64,7 +64,7 @@ public class ComicService : IComicService
                      select new ComicDto
                      {
                          Id = g.Key.Id,
-                         Name = "Con đường bá chủ",
+                         Name = "Ánh sáng con đường",
                          AliasName = g.Key.AliasName,
                          CoverUrl = "https://st.nettruyenus.com/data/comics/32/vo-luyen-dinh-phong-9068.jpg",
                          Description = g.Key.Description,
@@ -205,7 +205,7 @@ public class ComicService : IComicService
                      select new ComicDto
                      {
                          Id = c.Id,
-                         Name = "Con đường bá chủ",
+                         Name = "Ánh sáng con đường",
                          AliasName = c.AliasName,
                          CoverUrl = "https://st.nettruyenus.com/data/comics/32/vo-luyen-dinh-phong-9068.jpg",
                          Description = c.Description,
